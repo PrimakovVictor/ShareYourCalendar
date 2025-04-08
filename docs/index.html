@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Календарь</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 1em; background: #f9f9f9; }
+        h2 { margin-top: 1em; }
+        .calendar { margin-bottom: 2em; background: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .day-view, .week-view, .month-view { display: flex; flex-direction: column; }
+        .hours, .days, .month { display: flex; flex-wrap: wrap; gap: 5px; }
+        .hour, .day, .month-day {
+            flex: 1 0 12%;
+            min-width: 60px;
+            padding: 8px;
+            text-align: center;
+            background: #eef;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .nav { margin: 0.5em 0; }
+        .nav button { margin-right: 0.5em; }
+    </style>
+</head>
+<body>
+    <h1>🗓️ Календарь задач</h1>
+
+    <div class="calendar">
+        <h2>Сегодня по часам</h2>
+        <div class="nav">
+            <button onclick="prevDay()">←</button>
+            <span id="day-date"></span>
+            <button onclick="nextDay()">→</button>
+        </div>
+        <div class="day-view hours" id="day-hours"></div>
+    </div>
+
+    <div class="calendar">
+        <h2>Неделя</h2>
+        <div class="nav">
+            <button onclick="prevWeek()">←</button>
+            <span id="week-date"></span>
+            <button onclick="nextWeek()">→</button>
+        </div>
+        <div class="week-view days" id="week-days"></div>
+    </div>
+
+    <div class="calendar">
+        <h2>Месяц</h2>
+        <div class="nav">
+            <button onclick="prevMonth()">←</button>
+            <span id="month-date"></span>
+            <button onclick="nextMonth()">→</button>
+        </div>
+        <div class="month-view month" id="month-days"></div>
+    </div>
+
+    <script>
+        const today = new Date();
+        let selectedDay = new Date(today);
+        let selectedWeek = new Date(today);
+        let selectedMonth = new Date(today);
+
+        function updateDayView() {
+            const container = document.getElementById("day-hours");
+            container.innerHTML = "";
+            document.getElementById("day-date").textContent = selectedDay.toDateString();
+            for (let i = 0; i < 24; i++) {
+                const div = document.createElement("div");
+                div.className = "hour";
+                div.textContent = `${i}:00`;
+                container.appendChild(div);
+            }
+        }
+
+        function updateWeekView() {
+            const container = document.getElementById("week-days");
+            container.innerHTML = "";
+            const start = new Date(selectedWeek);
+            document.getElementById("week-date").textContent = start.toDateString();
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(start);
+                day.setDate(start.getDate() + i);
+                const div = document.createElement("div");
+                div.className = "day";
+                div.textContent = `${day.getDate()}/${day.getMonth()+1}
+(2 задачи)`; // заглушка
+                container.appendChild(div);
+            }
+        }
+
+        function updateMonthView() {
+            const container = document.getElementById("month-days");
+            container.innerHTML = "";
+            const year = selectedMonth.getFullYear();
+            const month = selectedMonth.getMonth();
+            document.getElementById("month-date").textContent = `${month+1}/${year}`;
+            const daysInMonth = new Date(year, month+1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const div = document.createElement("div");
+                div.className = "month-day";
+                div.textContent = d;
+                container.appendChild(div);
+            }
+        }
+
+        function nextDay() { selectedDay.setDate(selectedDay.getDate() + 1); updateDayView(); }
+        function prevDay() { selectedDay.setDate(selectedDay.getDate() - 1); updateDayView(); }
+
+        function nextWeek() { selectedWeek.setDate(selectedWeek.getDate() + 1); updateWeekView(); }
+        function prevWeek() { selectedWeek.setDate(selectedWeek.getDate() - 1); updateWeekView(); }
+
+        function nextMonth() { selectedMonth.setMonth(selectedMonth.getMonth() + 1); updateMonthView(); }
+        function prevMonth() { selectedMonth.setMonth(selectedMonth.getMonth() - 1); updateMonthView(); }
+
+        updateDayView();
+        updateWeekView();
+        updateMonthView();
+    </script>
+</body>
+</html>
