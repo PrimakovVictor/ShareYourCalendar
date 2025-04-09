@@ -3,92 +3,46 @@ import React, { useEffect, useState } from 'react';
 const App = () => {
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState('light');
-  const [isTelegram, setIsTelegram] = useState(false);
-  const [debugInfo, setDebugInfo] = useState(null);
+  const [webAppReady, setWebAppReady] = useState(false);
 
   useEffect(() => {
-    const rawTelegram = window.Telegram;
-    const telegram = rawTelegram?.WebApp;
-
-    console.log("window.Telegram =", rawTelegram);
-    console.log("window.Telegram.WebApp =", telegram);
+    const telegram = window?.Telegram?.WebApp;
 
     if (!telegram) {
-      setIsTelegram(false);
+      console.warn("WebApp API не найден — открой через Telegram бота.");
       return;
     }
 
     telegram.ready();
-    setIsTelegram(true);
+    setWebAppReady(true);
     setUser(telegram.initDataUnsafe?.user || null);
     setTheme(telegram.colorScheme || 'light');
 
-    telegram.MainButton.setText('👍 Готово');
+    telegram.MainButton.setText("Готово ✅");
     telegram.MainButton.show();
+  }, []);
 
-    setDebugInfo({
-      telegram: rawTelegram,
-      webApp: telegram,
-      initDataUnsafe: telegram?.initDataUnsafe,
-     });
-    }, []);
-
-  // useEffect(() => {
-  //   const rawTelegram = window.Telegram;
-  //   const telegram = rawTelegram?.WebApp;
-  //
-  //   console.log('📦 window.Telegram:', rawTelegram);
-  //   console.log('📦 window.Telegram.WebApp:', telegram);
-  //   console.log('📦 initDataUnsafe:', telegram?.initDataUnsafe);
-  //
-  //   setDebugInfo({
-  //     telegram: rawTelegram,
-  //     webApp: telegram,
-  //     initDataUnsafe: telegram?.initDataUnsafe,
-  //   });
-  //
-  //   if (!telegram) {
-  //     console.warn('❌ WebApp не найден. Ты точно открыл через Telegram?');
-  //     return;
-  //   }
-  //
-  //   telegram.ready();
-  //   setIsTelegram(true);
-  //   setUser(telegram.initDataUnsafe?.user || null);
-  //   setTheme(telegram.colorScheme || 'light');
-  //
-  //   telegram.MainButton.setText('👍 Готово');
-  //   telegram.MainButton.show();
-  // }, []);
-
-  if (!isTelegram) {
+  if (!webAppReady) {
     return (
-      <div className="min-h-screen bg-red-50 text-red-800 p-4 space-y-2 text-sm">
-        <h2 className="text-lg font-semibold">⚠️ Не запущено в Telegram</h2>
-        <p>window.Telegram.WebApp не найден</p>
-        <pre className="bg-white text-black p-2 rounded shadow overflow-x-auto">
-          {JSON.stringify(debugInfo, null, 2)}
-        </pre>
-        <p className="mt-4">
-          Попробуй открыть приложение через <strong>бота в Telegram</strong>, а не напрямую в браузере.
-        </p>
+      <div className="min-h-screen flex items-center justify-center bg-red-100 text-red-800 text-center p-4">
+        <div>
+          <h2 className="text-xl font-bold mb-2">🔒 Не запущено в Telegram</h2>
+          <p className="text-sm">Пожалуйста, открой миниаппу через кнопку в Telegram-боте.</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
-      <h1 className="text-2xl font-bold mb-4">Привет, Telegram Mini App 👋</h1>
-
-      {user ? (
-        <div className="space-y-2">
-          <p><strong>Имя:</strong> {user.first_name} {user.last_name}</p>
-          <p><strong>Юзернейм:</strong> @{user.username}</p>
-          <p><strong>Язык:</strong> {user.language_code}</p>
-          <p><strong>ID:</strong> {user.id}</p>
-        </div>
-      ) : (
-        <p>Пользователь не найден. Проверь, что миниаппа запущена через Telegram 🙃</p>
+      <h1 className="text-2xl font-bold mb-4">Привет, {user?.first_name || 'пользователь'} 👋</h1>
+      {user && (
+        <ul className="space-y-1 text-sm">
+          <li><strong>Имя:</strong> {user.first_name} {user.last_name}</li>
+          <li><strong>Юзернейм:</strong> @{user.username}</li>
+          <li><strong>Язык:</strong> {user.language_code}</li>
+          <li><strong>ID:</strong> {user.id}</li>
+        </ul>
       )}
     </div>
   );
