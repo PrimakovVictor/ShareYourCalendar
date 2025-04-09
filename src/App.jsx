@@ -1,65 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
 const App = () => {
-  const [env, setEnv] = useState({
-    hasWindowTelegram: false,
-    hasWebApp: false,
-    initDataUnsafe: null,
-    userAgent: "",
-    href: "",
-  });
-
+  const [tg, setTg] = useState(null);
   const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState('light');
+  const [isInTelegram, setIsInTelegram] = useState(false);
+  const [debugData, setDebugData] = useState({});
 
   useEffect(() => {
-    const hasWindowTelegram = typeof window !== "undefined" && !!window.Telegram;
-    const hasWebApp = !!window.Telegram?.WebApp;
-    const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe ?? null;
+    const telegram = window.Telegram?.WebApp;
 
-    setEnv({
-      hasWindowTelegram,
-      hasWebApp,
-      initDataUnsafe,
-      userAgent: navigator.userAgent,
-      href: window.location.href,
+    setDebugData({
+      hasWindowTelegram: !!window.Telegram,
+      hasWebApp: !!telegram,
+      initDataUnsafe: telegram?.initDataUnsafe || null,
     });
 
-    if (hasWebApp) {
-      window.Telegram.WebApp.ready();
-
-      if (initDataUnsafe?.user) {
-        setUser(initDataUnsafe.user);
-        window.Telegram.WebApp.MainButton.setText("Готово ✅");
-        window.Telegram.WebApp.MainButton.show();
-      }
+    if (!telegram || !telegram.initDataUnsafe?.user) {
+      setIsInTelegram(false);
+      return;
     }
+
+    telegram.ready();
+    setIsInTelegram(true);
+    setTg(telegram);
+    setUser(telegram.initDataUnsafe.user);
+    setTheme(telegram.colorScheme || 'light');
+
+    telegram.MainButton.setText('👍 Готово');
+    telegram.MainButton.show();
   }, []);
 
   return (
-    <div className="min-h-screen p-6 bg-white text-black">
-      <h1 className="text-2xl font-bold mb-4">📱 Telegram Mini App</h1>
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+      <h1 className="text-2xl font-bold mb-4">🧪 Проверка среды</h1>
 
-      {user ? (
-        <div className="mb-6 space-y-1">
-          <h2 className="text-lg font-semibold">👤 Пользователь:</h2>
-          <p>Имя: {user.first_name} {user.last_name}</p>
-          <p>Юзернейм: @{user.username}</p>
-          <p>ID: {user.id}</p>
-          <p>Язык: {user.language_code}</p>
-        </div>
-      ) : (
-        <div className="mb-6 text-red-600">
-          <p>⚠️ Пользователь не найден.</p>
-          <p>Проверь, что Mini App запущен через Telegram.</p>
-        </div>
-      )}
+      <div className="mb-6">
+        <p><strong>🛠 Запущено в Telegram:</strong> {isInTelegram ? '✅ Да' : '❌ Нет'}</p>
+      </div>
 
-      <div>
-        <h2 className="text-lg font-semibold mb-1">🔍 Диагностика окружения:</h2>
-        <pre className="bg-gray-100 text-sm p-3 rounded overflow-auto">
-          {JSON.stringify(env, null, 2)}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">📦 Отладочные данные:</h2>
+        <pre className="bg-gray-100 text-black p-2 rounded shadow overflow-x-auto text-sm">
+          {JSON.stringify(debugData, null, 2)}
         </pre>
       </div>
+
+      {user && (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">👤 Пользователь:</h2>
+          <p><strong>Имя:</strong> {user.first_name} {user.last_name}</p>
+          <p><strong>Юзернейм:</strong> @{user.username}</p>
+          <p><strong>Язык:</strong> {user.language_code}</p>
+          <p><strong>ID:</strong> {user.id}</p>
+        </div>
+      )}
     </div>
   );
 };
