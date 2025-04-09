@@ -4,12 +4,24 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState('light');
   const [isTelegram, setIsTelegram] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   useEffect(() => {
-    const telegram = window.Telegram?.WebApp;
+    const rawTelegram = window.Telegram;
+    const telegram = rawTelegram?.WebApp;
+
+    console.log('📦 window.Telegram:', rawTelegram);
+    console.log('📦 window.Telegram.WebApp:', telegram);
+    console.log('📦 initDataUnsafe:', telegram?.initDataUnsafe);
+
+    setDebugInfo({
+      telegram: rawTelegram,
+      webApp: telegram,
+      initDataUnsafe: telegram?.initDataUnsafe,
+    });
 
     if (!telegram) {
-      console.warn('❌ WebApp не определён. Не в Telegram?');
+      console.warn('❌ WebApp не найден. Ты точно открыл через Telegram?');
       return;
     }
 
@@ -24,8 +36,15 @@ const App = () => {
 
   if (!isTelegram) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-center p-4 text-lg bg-red-50 text-red-800">
-        Это приложение предназначено для запуска внутри Telegram 📱
+      <div className="min-h-screen bg-red-50 text-red-800 p-4 space-y-2 text-sm">
+        <h2 className="text-lg font-semibold">⚠️ Не запущено в Telegram</h2>
+        <p>window.Telegram.WebApp не найден</p>
+        <pre className="bg-white text-black p-2 rounded shadow overflow-x-auto">
+          {JSON.stringify(debugInfo, null, 2)}
+        </pre>
+        <p className="mt-4">
+          Попробуй открыть приложение через <strong>бота в Telegram</strong>, а не напрямую в браузере.
+        </p>
       </div>
     );
   }
@@ -42,7 +61,7 @@ const App = () => {
           <p><strong>ID:</strong> {user.id}</p>
         </div>
       ) : (
-        <p>Пользователь не найден. Запусти в Telegram 🙃</p>
+        <p>Пользователь не найден. Проверь, что миниаппа запущена через Telegram 🙃</p>
       )}
     </div>
   );
