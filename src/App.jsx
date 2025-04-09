@@ -26,7 +26,7 @@ const App = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white text-center p-4">
         <p className="text-lg text-red-600 font-semibold">
-          Это приложение предназначено для<br />запуска внутри Telegram 📱
+          Это приложение предназначено для<br />запуска внутри Telegram!!! 📱
         </p>
       </div>
     );
