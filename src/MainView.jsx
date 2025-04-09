@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { CalendarIcon, LayoutGridIcon, ClockIcon } from 'lucide-react';
-import { Button } from "@/components/ui/button"; // если используешь shadcn/ui
 
 const MainView = () => {
   const [view, setView] = useState('day');
