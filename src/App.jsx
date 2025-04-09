@@ -10,18 +10,11 @@ const App = () => {
     const rawTelegram = window.Telegram;
     const telegram = rawTelegram?.WebApp;
 
-    console.log('📦 window.Telegram:', rawTelegram);
-    console.log('📦 window.Telegram.WebApp:', telegram);
-    console.log('📦 initDataUnsafe:', telegram?.initDataUnsafe);
-
-    setDebugInfo({
-      telegram: rawTelegram,
-      webApp: telegram,
-      initDataUnsafe: telegram?.initDataUnsafe,
-    });
+    console.log("window.Telegram =", rawTelegram);
+    console.log("window.Telegram.WebApp =", telegram);
 
     if (!telegram) {
-      console.warn('❌ WebApp не найден. Ты точно открыл через Telegram?');
+      setIsTelegram(false);
       return;
     }
 
@@ -32,7 +25,41 @@ const App = () => {
 
     telegram.MainButton.setText('👍 Готово');
     telegram.MainButton.show();
-  }, []);
+
+    setDebugInfo({
+      telegram: rawTelegram,
+      webApp: telegram,
+      initDataUnsafe: telegram?.initDataUnsafe,
+     });
+    }, []);
+
+  // useEffect(() => {
+  //   const rawTelegram = window.Telegram;
+  //   const telegram = rawTelegram?.WebApp;
+  //
+  //   console.log('📦 window.Telegram:', rawTelegram);
+  //   console.log('📦 window.Telegram.WebApp:', telegram);
+  //   console.log('📦 initDataUnsafe:', telegram?.initDataUnsafe);
+  //
+  //   setDebugInfo({
+  //     telegram: rawTelegram,
+  //     webApp: telegram,
+  //     initDataUnsafe: telegram?.initDataUnsafe,
+  //   });
+  //
+  //   if (!telegram) {
+  //     console.warn('❌ WebApp не найден. Ты точно открыл через Telegram?');
+  //     return;
+  //   }
+  //
+  //   telegram.ready();
+  //   setIsTelegram(true);
+  //   setUser(telegram.initDataUnsafe?.user || null);
+  //   setTheme(telegram.colorScheme || 'light');
+  //
+  //   telegram.MainButton.setText('👍 Готово');
+  //   telegram.MainButton.show();
+  // }, []);
 
   if (!isTelegram) {
     return (
