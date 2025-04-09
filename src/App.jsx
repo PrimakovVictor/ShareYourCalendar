@@ -1,58 +1,61 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 const App = () => {
-  const [tg, setTg] = useState(null);
+  const [env, setEnv] = useState({
+    hasWindowTelegram: false,
+    hasWebApp: false,
+    initDataUnsafe: null,
+    userAgent: "",
+    href: "",
+  });
+
   const [user, setUser] = useState(null);
-  const [theme, setTheme] = useState('light');
-  const [isInTelegram, setIsInTelegram] = useState(false);
-  const [debugData, setDebugData] = useState({});
 
   useEffect(() => {
-    const telegram = window.Telegram?.WebApp;
+    const hasWindowTelegram = !!window.Telegram;
+    const hasWebApp = !!window.Telegram?.WebApp;
+    const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe ?? null;
 
-    setDebugData({
-      hasWindowTelegram: !!window.Telegram,
-      hasWebApp: !!telegram,
-      initDataUnsafe: telegram?.initDataUnsafe || null,
+    setEnv({
+      hasWindowTelegram,
+      hasWebApp,
+      initDataUnsafe,
+      userAgent: navigator.userAgent,
+      href: window.location.href,
     });
 
-    if (!telegram || !telegram.initDataUnsafe?.user) {
-      setIsInTelegram(false);
-      return;
+    if (hasWebApp && initDataUnsafe?.user) {
+      setUser(initDataUnsafe.user);
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.MainButton.setText("Готово ✅");
+      window.Telegram.WebApp.MainButton.show();
     }
-
-    telegram.ready();
-    setIsInTelegram(true);
-    setTg(telegram);
-    setUser(telegram.initDataUnsafe.user);
-    setTheme(telegram.colorScheme || 'light');
-
-    telegram.MainButton.setText('👍 Готово');
-    telegram.MainButton.show();
   }, []);
 
   return (
-    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
-      <h1 className="text-2xl font-bold mb-4">🧪 Проверка среды</h1>
+    <div className="min-h-screen p-6 bg-white text-black">
+      <h1 className="text-2xl font-bold mb-4">🔍 Проверка среды</h1>
 
-      <div className="mb-6">
-        <p><strong>🛠 Запущено в Telegram:</strong> {isInTelegram ? '✅ Да' : '❌ Нет'}</p>
-      </div>
+      <p className="mb-2 text-lg">
+        🛠️ Запущено в <strong>Telegram</strong>:{" "}
+        {env.hasWindowTelegram && env.hasWebApp ? (
+          <span className="text-green-600">✅ Да</span>
+        ) : (
+          <span className="text-red-600">❌ Нет</span>
+        )}
+      </p>
 
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">📦 Отладочные данные:</h2>
-        <pre className="bg-gray-100 text-black p-2 rounded shadow overflow-x-auto text-sm">
-          {JSON.stringify(debugData, null, 2)}
-        </pre>
-      </div>
+      <h2 className="text-lg font-semibold mt-4 mb-1">📦 Отладочные данные:</h2>
+      <pre className="bg-gray-100 text-sm p-3 rounded overflow-auto">
+        {JSON.stringify(env, null, 2)}
+      </pre>
 
       {user && (
-        <div>
-          <h2 className="text-xl font-semibold mb-2">👤 Пользователь:</h2>
-          <p><strong>Имя:</strong> {user.first_name} {user.last_name}</p>
-          <p><strong>Юзернейм:</strong> @{user.username}</p>
-          <p><strong>Язык:</strong> {user.language_code}</p>
-          <p><strong>ID:</strong> {user.id}</p>
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold">👤 Пользователь:</h2>
+          <p>Имя: {user.first_name} {user.last_name}</p>
+          <p>Юзернейм: @{user.username}</p>
+          <p>ID: {user.id}</p>
         </div>
       )}
     </div>
