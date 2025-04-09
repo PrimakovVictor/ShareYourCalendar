@@ -22,7 +22,7 @@ const App = () => {
     telegram.MainButton.show();
   }, []);
 
-  if (!webAppReady) {
+  if (!telegram) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-red-100 text-red-800 text-center p-4">
         <div>
